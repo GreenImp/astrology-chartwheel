@@ -7,21 +7,30 @@ if(!function_exists('add_action')){ exit; }
  * Author: GreenImp Web
  * Date Created: 19/04/13 10:26
  */
+/**
+ * @package astrology-chartwheel
+ * @version 0.1
+ */
 /*
 Plugin Name: Astrology Chartwheel
 Plugin URI:
-Description: A plugin that integrates 'Horiscope Services' white label Astrology Charts, into Wordpress. Horiscope Services website: http://stardm.com/
+Description: A plugin that integrates 'Horoscope Services' white label Astrology Charts, into Wordpress. Horoscope Services website: http://stardm.com/
 Author: Lee Langley
 Version: 0.1
 Author URI: greenimp.co.uk
 */
 
-require_once(dirname(__FILE__) . '/classes/PluginHandler.class.php');
+require_once(dirname(__FILE__) . '/classes/AstrologyPlugin.class.php');
 
 // initialise the base class
-$plugin = PluginHandler::getInstance(true);
+$astrologyPlugin = new AstrologyPlugin('Astrology Chartwheel', 'astrologyChartwheel', null, true);
 
 // set up the pages
-$plugin->library('Page')->addURLs(array(
+$astrologyPlugin->library('Page')->addURLs(array(
 	'service'
 ));
+
+function is_gender($val){
+	$val = strtoupper($val);
+	return (($val == 'M') || ($val == 'F')) ? $val : false;
+}

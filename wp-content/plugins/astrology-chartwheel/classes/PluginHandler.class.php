@@ -17,18 +17,21 @@ if(!class_exists('PluginHandler')){
 		public $varName = 'myPlugin';	// variable name
 		public $dbPrefix = 'myplugin_';	// db prefix
 
-		private static $singleton = null;
-
 		public $debug = false;		// bool - whether we're debugging or not
 		public $directory = '';		// the plugin directory
 		public $uri = '';			// the relative URI to the plugin directory (for loading CSS, JS etc)
 		public $pluginFile = '';	// the plugin file name
 
-		private $lib = array();
+		protected $lib = array();
 
-		private function __construct($debug = false){
+		public function __construct($name, $varName = null, $dbPrefix = null, $debug = false){
 			// define whether we are in debug mode or not
 			$this->debug = ($debug === true);
+
+			// define the plugin specific settings
+			$this->name = $name;
+			$this->varName = preg_replace('/[^a-zA-Z0-9\-\_]+/', '_', !is_null($varName) ? $varName : $name);
+			$this->dbPrefix = strtolower(!is_null($dbPrefix) ? preg_replace('/[^a-zA-Z0-9\-\_]+/', '_', $dbPrefix) : $this->varName);
 
 			// set required directory/path variables
 			$this->directory = realpath(rtrim(dirname(__FILE__), '/') . '/../') . '/';								// plugin directory
@@ -52,20 +55,6 @@ if(!class_exists('PluginHandler')){
 			if(class_exists('Page')){
 				$this->lib['Page'] = new Page($this->directory . 'pages/', $this->varName, $this->debug);
 			}
-		}
-
-		/**
-		 * Returns an instance of the plugin
-		 *
-		 * @param bool $debug
-		 * @return PluginHandler
-		 */
-		public static function getInstance($debug = false){
-			if(!is_a(self::$singleton, 'PluginHandler')){
-				self::$singleton = new PluginHandler($debug);
-			}
-
-			return self::$singleton;
 		}
 
 		/**

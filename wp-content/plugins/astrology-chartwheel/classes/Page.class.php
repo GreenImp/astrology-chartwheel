@@ -83,6 +83,14 @@ if(!class_exists('Page')){
 				// define a generic delete URL
 				$deleteURL = $currentURL . '&amp;action=delete&amp;id=%d';
 
+				// store the $data into their own variables
+				if(count($data) > 0){
+					foreach($data as $key => $val){
+						$$key = $val;
+					}
+				}
+
+
 				if(is_numeric($status)){
 					$this->httpStatus($status);
 				}
