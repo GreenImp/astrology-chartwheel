@@ -20,7 +20,7 @@ class AstrologyPlugin extends PluginHandler{
 
 	private $apiKey = 'e7bc1e12-bba8-4274-9b0a-ea4bef4179d0';			// API key
 
-	private $error	= '';	// records the last occurred error
+	private $errors	= array();	// records the last occurred error
 
 	public function __construct($name, $varName = null, $dbPrefix = null, $debug = false){
 		parent::__construct($name, $varName, $dbPrefix, $debug);
@@ -77,19 +77,60 @@ class AstrologyPlugin extends PluginHandler{
 		return $request->request($this->requestURL . ltrim($url, '/'));
 	}
 
+	/**
+	 * Takes a http response (and expected format) and validates it
+	 *
+	 * @param $response
+	 * @param $format
+	 * @return bool
+	 */
 	private function checkResponse($response, $format){
-		die(var_dump($response));
-		if(isset($response['body']) && ($response['body'] != '')){
-			// response returned
-			$response = json_decode($response['body']);
+		if(
+			isset($response['response']) && ($response['response']['code'] == 200) &&	// response header checks out
+			(isset($response['body']) && (trim($response['body']) != ''))				// response body contains data
+		){
+			// response headers look okay - check the data
+			$response = $this->parseData($response, $format);
 
-			if($response->ResponseStatus->Code == 1){
+			$status = $response['body']->ResponseStatus;
+
+			if($status->Code == 1){
 				// status is okay
+				if($response['body']->ResponseData == null){
+					// no data
+					$this->setError(null, 'An unknown error has occurred');
+					return false;
+				}
+
+				// response is okay
 				return true;
+			}else{
+				// an error has occurred
+				$this->setError($status->Code, $status->Message);
+				return false;
 			}
+		}else{
+			// error from response
+			$this->setError(null, (isset($response['response']) ? $response['response'] . ' - ' . $response['response']['message'] : 'No response'));
+			return false;
+		}
+	}
+
+	/**
+	 * Parses the data into a readable, normalised format
+	 *
+	 * @param $data
+	 * @param $format
+	 * @return mixed
+	 */
+	private function parseData($data, $format){
+		if($format == 'JSON'){
+			$data['body'] = json_decode($data['body']);
+		}elseif($format == 'XML'){
+			$data['body'] = $this->parseXML($data)->body;
 		}
 
-		return false;
+		return $data;
 	}
 
 	/**
@@ -98,26 +139,32 @@ class AstrologyPlugin extends PluginHandler{
 	 * @param $request
 	 * @return SimpleXMLElement
 	 */
-	private function parseRequest($request){
+	private function parseXML($request){
 		return simplexml_load_string($request);
 	}
 
 	/**
 	 * Sets the last error
 	 *
+	 * @param $code
 	 * @param $error
 	 */
-	private function setError($error){
-		$this->error = $error;
+	private function setError($code, $error){
+		$this->errors[] = array(
+			'code'	=> $code,
+			'message' => $error
+		);
 	}
 
 	/**
 	 * Returns the last specified error
 	 *
-	 * @return string
+	 * @return array
 	 */
-	public function getError(){
-		return $this->error;
+	public function getErrors(){
+		$errors = $this->errors;
+		$this->errors = array();
+		return $errors;
 	}
 
 	/**
@@ -139,8 +186,7 @@ class AstrologyPlugin extends PluginHandler{
 			$vars['P' . $i . 'DOB'] = date('Y-m-d', strtotime($person['dob']));
 			$vars['P' . $i . 'TimeUnknown'] = (isset($person['tobUnknown']) && ($person['tobUnknown'] == true)) ? 1 : 0;
 			$vars['P' . $i . 'Time'] = isset($person['tob']) ? $person['tob'] : '';
-			//$vars['P' . $i . 'LocationCode'] = $person['locationCode'];
-			$vars['P' . $i . 'LocationCode'] = 8338967;
+			$vars['P' . $i . 'LocationCode'] = $person['locationCode'];
 
 			$i++;
 		}
@@ -155,32 +201,26 @@ class AstrologyPlugin extends PluginHandler{
 
 			if($this->checkResponse($response, $format)){
 				// response is okay
-				if($format == 'JSON'){
-					$response = json_decode($response['body']);
-				}elseif($format == 'XML'){
-					$response = $this->parseRequest($response)->body;
-				}
+				$response = $this->parseData($response, $format);
 
-				return $this->parseRequest($response->ResponseData->XML);
+				return $this->parseXML($response['body']->ResponseData->XML);
 			}
 		}
-
-
-		/*$response = $this->makeRequest($this->buildRequest($details, $format));
-
-		if($response['body'] != ''){
-			// response returned
-			$response = json_decode($response['body']);
-
-			if($response->ResponseStatus->Code == 1){
-				// status is okay
-				return $this->parseRequest($response->ResponseData->XML);
-			}
-		}*/
 
 		return null;
 	}
 
+	/**
+	 * Takes location data and returns the full,
+	 * valid location name and code.
+	 * If data is invalid, a value of null is returned.
+	 *
+	 * @param $town
+	 * @param $country
+	 * @param string $state
+	 * @param string $format
+	 * @return null
+	 */
 	public function getLocationCode($town, $country, $state = '', $format = 'JSON'){
 		// loop through each person's details and add them to the list
 		$vars = array(
@@ -192,6 +232,8 @@ class AstrologyPlugin extends PluginHandler{
 
 		if($this->checkResponse($response, $format)){
 			// response is okay
+			$response = $this->parseData($response, $format);
+			return $response['body']->ResponseData[0];
 		}
 
 		return null;

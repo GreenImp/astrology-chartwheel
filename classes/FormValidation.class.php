@@ -739,6 +739,46 @@ if(!class_exists('FormValidation')){
 
 			return !!preg_match('/^' . $format . '$/', $str);
 		}
+
+
+		/**
+		 * Returns the value for the post variable, with the given name.
+		 * If value isn't found, and empty string is returned.
+		 * Returned value is escaped for form input.
+		 *
+		 * @param $name
+		 * @return array|string
+		 */
+		public function getValue($name){
+			return isset($_POST[$name]) ? $this->prep_for_form($_POST[$name]) : '';
+		}
+
+		/**
+		 * Returns the 'selected' value of the given post variable.
+		 * If selected, a value of 'selected' is returned, otherwise
+		 * and empty string.
+		 *
+		 * @param $name
+		 * @param $val
+		 * @return string
+		 */
+		public function getSelect($name, $val){
+			return (isset($_POST[$name]) && ($_POST[$name] == $val)) ? 'selected' : '';
+		}
+
+
+		/**
+		 * Returns the 'checked' value of the given post variable.
+		 * If checked, a value of 'checked' is returned, otherwise
+		 * and empty string.
+		 *
+		 * @param $name
+		 * @param $val
+		 * @return string
+		 */
+		public function getCheckbox($name, $val){
+			return (isset($_POST[$name]) && ($_POST[$name] == $val)) ? 'checked' : '';
+		}
 	}
 
 
