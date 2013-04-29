@@ -69,8 +69,6 @@ if(isset($_POST['chartSubmit'])){
 
 		if(!is_null($location = $astrologyPlugin->getLocationCode($_POST['birthTown'], $_POST['birthCountry'], $_POST['birthState']))){
 			// set the entered birth town to the full valid version
-			$_POST['birthTown'] = $formValidation->prep_for_form($location->NameWithRegion);
-
 			$chartData = $astrologyPlugin->getChart(array(
 				array(
 					'firstName'		=> $_POST['fName'],
@@ -198,7 +196,7 @@ if(isset($chartData) && !is_null($chartData)){
 <?php
 }
 ?>
-<form action="<?php echo $currentURL; ?>" method="post">
+<form action="<?php echo $currentURL; ?>" method="post" id="chartForm">
 	<h2>Get Your Astrology Chart</h2>
 
 	<fieldset>

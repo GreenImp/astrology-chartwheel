@@ -47,6 +47,9 @@ if(!class_exists('PluginHandler')){
 			// register the shortcodes activation function
 			add_action('init', array($this, 'registerShortCodes'));
 
+			// enqueue CSS and JS
+			add_action('wp_enqueue_scripts', array($this, 'enqueueScripts'));
+
 
 			// check for any plugin libraries
 			if(class_exists('FormValidation')){
@@ -89,6 +92,13 @@ if(!class_exists('PluginHandler')){
 		 * but can be easily overridden by child plugins.
 		 */
 		public function registerShortCodes(){}
+
+		/**
+		 * This function is called on the enqueue scripts hook.
+		 * By default it does nothing, but can be overwritten by
+		 * a child plugin, to add CSS/JS to the plugin.
+		 */
+		public function enqueueScripts(){}
 
 		/**
 		 * Returns the requested library.

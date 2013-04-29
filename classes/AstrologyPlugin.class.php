@@ -144,6 +144,15 @@ class AstrologyPlugin extends PluginHandler{
 	}
 
 	/**
+	 * Adds required JS/CSS
+	 */
+	public function enqueueScripts(){
+		wp_enqueue_style('jquery-ui-css', 'http://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css', false, $this->version, false);
+
+		wp_enqueue_script('astrology-chart-js', $this->uri . 'assets/js/charts.js', array('jquery-ui-datepicker'), $this->version, true);
+	}
+
+	/**
 	 * Takes an array and returns a query string.
 	 * ie;
 	 * foo=bar&hello=world
@@ -399,7 +408,6 @@ class AstrologyPlugin extends PluginHandler{
 	}
 
 	public function doAstrology(){
-		//					load($page, $data = array(), $surround = false, $status = null)
 		$this->lib['Page']->load('service');
 	}
 }
