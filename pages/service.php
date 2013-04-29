@@ -262,17 +262,36 @@ if(isset($chartData) && !is_null($chartData)){
 			</select>
 		</dd>
 
-		<dt><label for="personBirthState">US State</label></dt>
+		<dt><label for="personBirthState">State</label></dt>
 		<dd>
 			<select name="birthState" id="personBirthState">
-				<option value="">Select State (US Only)...</option>
+				<option value="">Select State...</option>
 
 				<?php
-				foreach($astrologyPlugin->getStates() as $state){
-					$code = $formValidation->prep_for_form($state->code)
+				if(count($astrologyPlugin->getStates()) > 0){
+					$countryCode = '';
+					foreach($astrologyPlugin->getStates() as $state){
+						$code = $formValidation->prep_for_form($state->code);
+
+						if($countryCode != $state->country_code){
+							$countryCode = $state->country_code;
+
+							if($countryCode != ''){
+								echo '</optgroup>';
+							}
 				?>
-				<option value="<?php echo $code; ?>" <?php echo $formValidation->getSelect('birthState', $code); ?>><?php echo $formValidation->prep_for_form($state->name); ?></option>
-				<?php } ?>
+				<optgroup label="<?php echo $state->country_code; ?>">
+				<?php
+						}
+				?>
+					<option value="<?php echo $code; ?>" <?php echo $formValidation->getSelect('birthState', $code); ?>><?php echo $formValidation->prep_for_form($state->name); ?></option>
+				<?php
+					}
+				?>
+				</optgroup>
+				<?php
+				}
+				?>
 			</select>
 		</dd>
 	</fieldset>

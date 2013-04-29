@@ -393,7 +393,7 @@ class AstrologyPlugin extends PluginHandler{
 		// loop through each person's details and add them to the list
 		$vars = array(
 			'CityTown'		=> $town,
-			'CountryISO'	=> (($state != '') ? '-' . $state : $country)
+			'CountryISO'	=> (($state != '') ? $state : $country)
 		);
 
 		$response = $this->makeRequest($this->buildRequest($this->locationURI, $vars, $format));

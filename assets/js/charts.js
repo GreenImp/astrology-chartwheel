@@ -13,12 +13,24 @@
 		 */
 		$('#personBirthCountry')
 				.on('change', function(){
-					var val = $(this).val(),
-						$stateSelect = $('#personBirthState');
+					var val = $(this).val(),																	// the selected country code
+						$stateSelect = $('#personBirthState'),													// the state select field
+						selectOpts = $stateSelect.data('countryOptions') ||										// the original select options
+										$stateSelect.data('countryOptions', $stateSelect.children('optgroup'))
+													.data('countryOptions'),
+						options = val ? selectOpts.filter('[label="' + val + '"]').children('option') : null;	// the options for the chosen country
 
-					if(val.toUpperCase() == 'US'){
+					// remove any existing states
+					$stateSelect.children(':not(:first)').remove();
+
+					if(options && options.length){
+						// states found, for the selected country
+						// enable the select field
 						$stateSelect.prop('disabled', false);
+						// append the country's states
+						options.clone().appendTo($stateSelect);
 					}else{
+						// no states found, for the selected country - disable the select field
 						$stateSelect.prop('disabled', true);
 					}
 				})
