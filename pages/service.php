@@ -123,6 +123,7 @@ if(isset($chartData) && !is_null($chartData)){
 			<?php
 			foreach($people as $person){
 				$person = isset($person->person) ? $person->person : $person;
+				$hasBirthTime = preg_match('/[0-9]{1,2}\:[0-9]{1,2}/', $person->birth_time);
 			?>
 			<li class="person">
 				<h3>Your Details</h3>
@@ -133,7 +134,7 @@ if(isset($chartData) && !is_null($chartData)){
 
 					<dt class="born"><strong>Born</strong></dt>
 					<dd class="bornDate">
-						<?php echo date('l jS F Y h:i A', strtotime($person->birth_date . ' ' . $person->birth_time)); ?>
+						<?php echo date('l jS F Y' . ($hasBirthTime ? ' h:i A' : ''), strtotime($person->birth_date . ($hasBirthTime ? ' ' . $person->birth_time : ''))); ?>
 					</dd>
 					<dd class="bornLocation">
 						<?php echo $person->birth_location; ?>
