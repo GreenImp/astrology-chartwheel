@@ -7,6 +7,7 @@
  */
 
 require_once(dirname(__FILE__) . '/PluginHandler.class.php');
+require_once(dirname(__FILE__) . '/CSVHandler.class.php');
 
 if(!class_exists( 'WP_Http' )){
 	require_once(ABSPATH . WPINC. '/class-http.php');
@@ -24,6 +25,111 @@ class AstrologyPlugin extends PluginHandler{
 
 	public function __construct($name, $varName = null, $dbPrefix = null, $debug = false){
 		parent::__construct($name, $varName, $dbPrefix, $debug);
+	}
+
+	/**
+	 * Runs the initial installation functionality
+	 */
+	public function install(){
+		// run the parent's install function
+		parent::install();
+
+		global $wpdb;
+
+		/**
+		 * Create the database tables
+		 */
+		// set up the table for storing countries
+		$tableName = $this->dbPrefix . 'countries';
+		$sql = "CREATE TABLE IF NOT EXISTS " . $tableName . " (
+			id int(10) unsigned NOT NULL AUTO_INCREMENT,
+			name varchar(255) NOT NULL,
+			code varchar(2) NOT NULL,
+			PRIMARY KEY (id),
+			KEY code (code)
+		)";
+		dbDelta($sql);
+
+		// remove any data from the table (in case the table already existed)
+		$query = "TRUNCATE TABLE `" . $tableName . "`";
+		$wpdb->query($query);
+
+		// now that we've built the db tables, we need to fill them
+		$data = CSVHandler::parseFile($this->directory . 'resources/Country-List-CSV.csv');
+		if(count($data) > 0){
+			// now add the db data
+			$query = "INSERT INTO
+				`" . $tableName . "`
+				(
+					`name`,
+					`code`
+				)
+			VALUES ";
+			foreach($data as $row){
+				$query .= "(
+					'" . $wpdb->escape($row[0]) . "',
+					'" . $wpdb->escape($row[1]) . "'
+				),";
+			}
+			$query = rtrim($query, ',');
+			$wpdb->query($query);
+		}
+
+
+		// set up the table for storing states
+		$tableName = $this->dbPrefix . 'country_states';
+		$sql = "CREATE TABLE IF NOT EXISTS " . $tableName . " (
+			id int(10) unsigned NOT NULL AUTO_INCREMENT,
+			name varchar(255) NOT NULL,
+			code varchar(5) NOT NULL,
+			country_code varchar(2) NOT NULL,
+			PRIMARY KEY (id),
+			KEY code (code),
+			KEY country_code (country_code)
+		)";
+		dbDelta($sql);
+
+		// remove any data from the table (in case the table already existed)
+		$query = "TRUNCATE TABLE `" . $tableName . "`";
+		$wpdb->query($query);
+
+		// now that we've built the db tables, we need to fill them
+		$data = CSVHandler::parseFile($this->directory . 'resources/US-State-List-CSV.csv');
+		if(count($data) > 0){
+			// now add the db data
+			$query = "INSERT INTO
+				`" . $tableName . "`
+				(
+					`name`,
+					`code`,
+					`country_code`
+				)
+			VALUES ";
+			foreach($data as $row){
+				if(('code' != strtolower($row[0])) && ('state / territory' != strtolower($row[1]))){
+					$query .= "(
+						'" . $wpdb->escape($row[1]) . "',
+						'" . $wpdb->escape($row[0]) . "',
+						'US'
+					),";
+				}
+			}
+			$query = rtrim($query, ',');
+			$wpdb->query($query);
+		}
+	}
+
+
+	public function uninstall(){
+		parent::uninstall();
+
+		if(!$this->debug){
+			global $wpdb;
+
+			// drop the dbs
+			$wpdb->query("DROP TABLE " . $this->dbPrefix . "countries");
+			$wpdb->query("DROP TABLE " . $this->dbPrefix . "country_states");
+		}
 	}
 
 	/**
@@ -165,6 +271,43 @@ class AstrologyPlugin extends PluginHandler{
 		$errors = $this->errors;
 		$this->errors = array();
 		return $errors;
+	}
+
+	/**
+	 * Returns a list of available countries
+	 *
+	 * @return mixed
+	 */
+	public function getCountries(){
+		global $wpdb;
+
+		$query = "SELECT
+						*
+					FROM
+						" . $this->dbPrefix . "countries
+					ORDER BY
+						name ASC";
+		return $wpdb->get_results($query);
+	}
+
+	/**
+	 * Returns a list of available country states
+	 *
+	 * @param string $country
+	 * @return mixed
+	 */
+	public function getStates($country = ''){
+		global $wpdb;
+
+		$query = "SELECT
+						*
+					FROM
+						" . $this->dbPrefix . "country_states
+					ORDER BY
+						name ASC
+					" . (($country != '') ? "
+					WHERE country_code = '" . $wpdb->escape(strtoupper($country)) . "'" : '');
+		return $wpdb->get_results($query);
 	}
 
 	/**

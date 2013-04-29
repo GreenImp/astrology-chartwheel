@@ -31,7 +31,7 @@ if(!class_exists('PluginHandler')){
 			// define the plugin specific settings
 			$this->name = $name;
 			$this->varName = preg_replace('/[^a-zA-Z0-9\-\_]+/', '_', !is_null($varName) ? $varName : $name);
-			$this->dbPrefix = strtolower(!is_null($dbPrefix) ? preg_replace('/[^a-zA-Z0-9\-\_]+/', '_', $dbPrefix) : $this->varName);
+			$this->dbPrefix = strtolower(!is_null($dbPrefix) ? preg_replace('/[^a-zA-Z0-9\-\_]+/', '_', $dbPrefix) : $this->varName . '_');
 
 			// set required directory/path variables
 			$this->directory = realpath(rtrim(dirname(__FILE__), '/') . '/../') . '/';								// plugin directory
