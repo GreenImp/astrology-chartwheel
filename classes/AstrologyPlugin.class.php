@@ -19,7 +19,9 @@ class AstrologyPlugin extends PluginHandler{
 	private $locationURI	= 'atlas/CheckLocation/';					// URI for location checks
 	private $reportCode		= 'NEW-CHARTWHEEL';							// Report code for reports
 
-	private $apiKey = 'e7bc1e12-bba8-4274-9b0a-ea4bef4179d0';			// API key
+	private $apiKey			= 'e7bc1e12-bba8-4274-9b0a-ea4bef4179d0';	// API key
+
+	private $chartSize		= 1140;										// chart image size
 
 	private $errors	= array();	// records the last occurred error
 
@@ -55,7 +57,7 @@ class AstrologyPlugin extends PluginHandler{
 		$wpdb->query($query);
 
 		// now that we've built the db tables, we need to fill them
-		$data = CSVHandler::parseFile($this->directory . 'resources/Country-List-CSV.csv');
+		$data = CSVHandler::parseFile($this->directory . 'assets/resources/Country-List-CSV.csv');
 		if(count($data) > 0){
 			// now add the db data
 			$query = "INSERT INTO
@@ -94,7 +96,7 @@ class AstrologyPlugin extends PluginHandler{
 		$wpdb->query($query);
 
 		// now that we've built the db tables, we need to fill them
-		$data = CSVHandler::parseFile($this->directory . 'resources/US-State-List-CSV.csv');
+		$data = CSVHandler::parseFile($this->directory . 'assets/resources/US-State-List-CSV.csv');
 		if(count($data) > 0){
 			// now add the db data
 			$query = "INSERT INTO
@@ -119,7 +121,9 @@ class AstrologyPlugin extends PluginHandler{
 		}
 	}
 
-
+	/**
+	 * Runs the un-installation functionality
+	 */
 	public function uninstall(){
 		parent::uninstall();
 
@@ -130,6 +134,13 @@ class AstrologyPlugin extends PluginHandler{
 			$wpdb->query("DROP TABLE " . $this->dbPrefix . "countries");
 			$wpdb->query("DROP TABLE " . $this->dbPrefix . "country_states");
 		}
+	}
+
+	/**
+	 * Registers required short codes
+	 */
+	public function registerShortCodes(){
+		add_shortcode('astrology-chart', array($this, 'doAstrology'));
 	}
 
 	/**
@@ -335,7 +346,12 @@ class AstrologyPlugin extends PluginHandler{
 		}
 
 		if(count($vars) > 0){
-			// details exist - make the request
+			// details exist
+
+			// define the chart image size
+			$vars['ImageSize'] = $this->chartSize;
+
+			// make the request
 			$response = $this->makeRequest($this->buildRequest(
 				sprintf($this->reportURI, $this->reportCode),
 				$vars,
@@ -380,5 +396,10 @@ class AstrologyPlugin extends PluginHandler{
 		}
 
 		return null;
+	}
+
+	public function doAstrology(){
+		//					load($page, $data = array(), $surround = false, $status = null)
+		$this->lib['Page']->load('service');
 	}
 }

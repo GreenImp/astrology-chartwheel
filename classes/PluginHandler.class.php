@@ -44,6 +44,9 @@ if(!class_exists('PluginHandler')){
 			// set up the de-activation hook to run the un-installation function
 			register_deactivation_hook($this->pluginFile, array($this, 'uninstall'));
 
+			// register the shortcodes activation function
+			add_action('init', array($this, 'registerShortCodes'));
+
 
 			// check for any plugin libraries
 			if(class_exists('FormValidation')){
@@ -78,6 +81,14 @@ if(!class_exists('PluginHandler')){
 			global $wp_rewrite;
 			$wp_rewrite->flush_rules();
 		}
+
+		/**
+		 * This function is called on init, to
+		 * register any necessary shortcodes.
+		 * By default, this function does nothing,
+		 * but can be easily overridden by child plugins.
+		 */
+		public function registerShortCodes(){}
 
 		/**
 		 * Returns the requested library.
