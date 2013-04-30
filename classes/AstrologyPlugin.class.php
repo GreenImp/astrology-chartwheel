@@ -17,9 +17,9 @@ class AstrologyPlugin extends PluginHandler{
 	private $requestURL		= 'https://primary.astrowebserver.net/v1/';	// base URL for requests
 	private $reportURI		= 'reports/CreateXML/%s/';					// URI for reports (charts)
 	private $locationURI	= 'atlas/CheckLocation/';					// URI for location checks
-	private $reportCode		= 'NEW-CHARTWHEEL';							// Report code for reports
 
-	private $apiKey			= 'e7bc1e12-bba8-4274-9b0a-ea4bef4179d0';	// API key
+	private $reportCode		= '';										// Report code for reports
+	private $apiKey			= '';										// API key
 
 	private $chartSize		= 1140;										// chart image size
 
@@ -27,6 +27,10 @@ class AstrologyPlugin extends PluginHandler{
 
 	public function __construct($name, $varName = null, $dbPrefix = null, $debug = false){
 		parent::__construct($name, $varName, $dbPrefix, $debug);
+
+		$this->apiKey		= get_option($this->varName . '_api-key');
+		$this->reportCode	= get_option($this->varName . '_report-code');
+		$this->chartSize	= get_option($this->varName . '_chart-size');
 	}
 
 	/**
@@ -35,6 +39,10 @@ class AstrologyPlugin extends PluginHandler{
 	public function install(){
 		// run the parent's install function
 		parent::install();
+
+		add_option($this->varName . '_api-key', 'e7bc1e12-bba8-4274-9b0a-ea4bef4179d0');
+		add_option($this->varName . '_report-code', 'NEW-CHARTWHEEL');
+		add_option($this->varName . '_chart-size', 1140);
 
 		global $wpdb;
 
