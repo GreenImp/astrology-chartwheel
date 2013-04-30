@@ -9,6 +9,7 @@
 global $astrologyPlugin;
 $formValidation = $astrologyPlugin->library('FormValidation');
 
+$locationOptions = array();
 if(isset($_POST['chartSubmit'])){
 	// form has been submitted
 
@@ -57,6 +58,11 @@ if(isset($_POST['chartSubmit'])){
 			'field'	=> 'birthState[]',
 			'label'	=> 'Birth State',
 			'rules'	=> 'trim'
+		),
+		array(
+			'field'	=> 'birthLocation[]',
+			'label'	=> 'Birth Location',
+			'rules'	=> 'trim|is_natural_no_zero'
 		)
 	);
 
@@ -71,12 +77,25 @@ if(isset($_POST['chartSubmit'])){
 			list($d, $m, $y) = explode('/', $_POST['dob'][$n]);
 			$dob = $y . '-' . $m . '-' . $d;
 
-			if(is_null($location = $astrologyPlugin->getLocationCode($_POST['birthTown'][$n], $_POST['birthCountry'][$n], $_POST['birthState'][$n]))){
+			// get the location - usually, we'll generate this from the getLocationCode function,
+			// but sometimes, if the user has selected from a choice of locations, the actual
+			// location code will be supplied as birthLocation
+			$location = (isset($_POST['birthLocation'][$n]) && !empty($_POST['birthLocation'][$n])) ?
+							$_POST['birthLocation'][$n]
+						:
+							$astrologyPlugin->getLocationCode($_POST['birthTown'][$n], $_POST['birthCountry'][$n], $_POST['birthState'][$n]);
+
+			if(is_null($location)){
 				// error getting location
 				$error = true;
 				// loop through each error and add it to the list
 				foreach($astrologyPlugin->getErrors() as $error){
 					Message::add('error', $error['message']);
+
+					if($error['code'] == 2){
+						// the error is actually that the selected country has multiple results to chose from
+						$locationOptions[$n] = $error['data'];
+					}
 				}
 			}else{
 				$people[] = array(
@@ -86,7 +105,7 @@ if(isset($_POST['chartSubmit'])){
 					'dob'			=> $dob,
 					'tob'			=> isset($_POST['tob'][$n]) ? $_POST['tob'][$n] : '',
 					'tobUnknown'	=> isset($_POST['tobUnknown'][$n]) ? 1 : 0,
-					'locationCode'	=> $location->LocationCode
+					'locationCode'	=> is_object($location) ? $location->LocationCode : $location
 				);
 			}
 		}
@@ -252,14 +271,16 @@ if(isset($chartData) && !is_null($chartData)){
 
 		<dt><label for="personBirthTown">Town/City</label></dt>
 		<dd>
-			<input type="text" name="birthTown[]" value="<?php echo $formValidation->getValue('birthTown[]'); ?>" placeholder="Town/City" required id="personBirthTown">
+			<?php $hasLocationOptions = isset($locationOptions[0]) && is_array($locationOptions[0]) && (count($locationOptions[0]) > 0); ?>
+			<input type="<?php echo $hasLocationOptions ? 'hidden' : 'text'; ?>" name="birthTown[]" value="<?php echo $formValidation->getValue('birthTown[]'); ?>" placeholder="Town/City" required id="personBirthTown">
 
-			<?php
-			/*if(isset($errors) && (count($errors) == 1) && ($errors[0]['code'] == 2)){
-				// the error is actually that the selected country has multiple results
-				//$errors[0]['data']
-			}*/
-			?>
+			<?php if($hasLocationOptions){ ?>
+			<select name="birthLocation[]" multiple size="5">
+				<?php foreach($locationOptions[0] as $option){ ?>
+				<option value="<?php echo $option->LocationCode; ?>"><?php echo $option->NameWithRegion; ?></option>
+				<?php } ?>
+			</select>
+			<?php } ?>
 		</dd>
 
 		<dt><label for="personBirthCountry">Country</label></dt>

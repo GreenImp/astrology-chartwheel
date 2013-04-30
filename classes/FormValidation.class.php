@@ -803,7 +803,6 @@ if(!class_exists('FormValidation')){
 			if(preg_match('/^(.+?)\[([^\]]*)\]$/', $name, $matches)){
 				return $matches;
 			}
-			die($name);
 			return false;
 		}
 
