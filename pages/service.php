@@ -272,10 +272,10 @@ if(isset($chartData) && !is_null($chartData)){
 		<dt><label for="personBirthTown">Town/City</label></dt>
 		<dd>
 			<?php $hasLocationOptions = isset($locationOptions[0]) && is_array($locationOptions[0]) && (count($locationOptions[0]) > 0); ?>
-			<input type="<?php echo $hasLocationOptions ? 'hidden' : 'text'; ?>" name="birthTown[]" value="<?php echo $formValidation->getValue('birthTown[]'); ?>" placeholder="Town/City" required id="personBirthTown">
+			<input type="<?php echo $hasLocationOptions ? 'hidden' : 'text'; ?>" name="birthTown[]" value="<?php echo $formValidation->getValue('birthTown[]'); ?>" placeholder="Town/City" required id="personBirthTown" class="town">
 
 			<?php if($hasLocationOptions){ ?>
-			<select name="birthLocation[]" multiple size="5">
+			<select name="birthLocation[]" multiple size="5" class="locationChoice">
 				<?php foreach($locationOptions[0] as $option){ ?>
 				<option value="<?php echo $option->LocationCode; ?>"><?php echo $option->NameWithRegion; ?></option>
 				<?php } ?>

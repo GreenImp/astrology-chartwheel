@@ -7,6 +7,26 @@
 	$(window).on('ready', function(){
 		var chartForm = $('#chartForm');
 
+		chartForm.find('select.locationChoice').each(function(){
+			var $select = $(this),																// the clicked select element
+				$input = $select.siblings('input[type=hidden].town'),							// the default city/town text input
+				$backBtn = $('<span class="locationBackBtn">&lt; re-enter City/Town</span>');	// the back button
+
+			$backBtn
+					// add the back button directly after the location select
+					.insertAfter($select)
+					// add the click handler to hide the location select and show the text input
+					.on('click', function(e){
+						e.preventDefault();
+						// hide and disable the location select
+						$select.hide().prop('disabled', true);
+						// hide the 'back' button
+						$backBtn.hide();
+						// show the default text input
+						$input.prop('type', 'text').stop(true, true).hide().fadeIn(200);
+					});
+		});
+
 		/**
 		 * Enable/disable the state drop-down,
 		 * depending on the selected country
