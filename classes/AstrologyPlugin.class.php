@@ -9,7 +9,7 @@
 require_once(dirname(__FILE__) . '/PluginHandler.class.php');
 require_once(dirname(__FILE__) . '/CSVHandler.class.php');
 
-if(!class_exists( 'WP_Http' )){
+if(!class_exists('WP_Http')){
 	require_once(ABSPATH . WPINC. '/class-http.php');
 }
  

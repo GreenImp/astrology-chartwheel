@@ -21,6 +21,7 @@ Author URI: greenimp.co.uk
 */
 
 require_once(dirname(__FILE__) . '/classes/AstrologyPlugin.class.php');
+require_once(dirname(__FILE__) . '/classes/AstrologyAdmin.class.php');
 
 // initialise the base class
 $astrologyPlugin = new AstrologyPlugin('Astrology Chartwheel', 'astrologyChartwheel', null, true);
@@ -29,6 +30,9 @@ $astrologyPlugin = new AstrologyPlugin('Astrology Chartwheel', 'astrologyChartwh
 $astrologyPlugin->library('Page')->addURLs(array(
 	'service'
 ));
+
+$astrologyAdmin = new AstrologyAdmin($astrologyPlugin, $astrologyPlugin->debug);
+
 
 function is_gender($val){
 	$val = strtoupper($val);
