@@ -208,9 +208,10 @@ class AstrologyPlugin extends PluginHandler{
 	 *
 	 * @param $response
 	 * @param $format
+	 * @param string $type
 	 * @return bool
 	 */
-	private function checkResponse($response, $format){
+	private function checkResponse($response, $format, $type = ''){
 		if(
 			isset($response['response']) && ($response['response']['code'] == 200) &&	// response header checks out
 			(isset($response['body']) && (trim($response['body']) != ''))				// response body contains data
@@ -232,7 +233,7 @@ class AstrologyPlugin extends PluginHandler{
 				return true;
 			}else{
 				// an error has occurred
-				$this->setError($status->Code, $status->Message);
+				$this->setError($status->Code, $this->getErrorMessage($type, $status->Code, $status->Message), $response['body']->ResponseData);
 				return false;
 			}
 		}else{
@@ -270,15 +271,139 @@ class AstrologyPlugin extends PluginHandler{
 	}
 
 	/**
+	 * Takes an Astrology Chart error code
+	 * and returns our own error message
+	 *
+	 * @param $type
+	 * @param $code
+	 * @param string $message
+	 * @return string
+	 */
+	private function getErrorMessage($type, $code, $message = ''){
+		if($type == 'location'){
+			switch($code){
+				case 2:
+					$message = 'Multiple cities were found matching your selection, please choose the correct one';
+				break;
+
+				case -11:
+					$message = 'City/Town not provided';
+				break;
+				case -12:
+					$message = 'Country or State not provided';
+				break;
+				case -13:
+					$message = 'Country or State not valid';
+				break;
+
+				case -31:
+					$message = 'City/Town not found, please try the nearest large city/town';
+				break;
+
+				case -41:
+					$message = 'Missing API key';
+				break;
+				case -42:
+					$message = 'API key is invalid or has expired';
+				break;
+
+				case -91:
+					$message = 'System error';
+				break;
+			}
+		}elseif($type == 'chart'){
+			switch($code){
+				case -11:
+					$message = 'First name is missing';
+				break;
+				case -12:
+					$message = 'Sex not provided or invalid';
+				break;
+				case -13:
+					$message = 'Date of birth is missing';
+				break;
+				case -14:
+					$message = 'Date of birth is invalid';
+				break;
+				case -15:
+					$message = 'Time of birth is missing. If you are unsure of yur time of birth, please select \'Unknown\'';
+				break;
+				case -16:
+					$message = 'Time of birth is invalid';
+				break;
+				case -17:
+					$message = 'Location is missing';
+				break;
+				case -18:
+					$message = 'Location is invalid';
+				break;
+				case -19:
+					$message = 'Current location is invalid';
+				break;
+
+				case -21:
+					$message = 'First name is missing';
+				break;
+				case -22:
+					$message = 'Sex not provided or invalid';
+				break;
+				case -23:
+					$message = 'Date of birth is missing';
+				break;
+				case -24:
+					$message = 'Date of birth is invalid';
+				break;
+				case -25:
+					$message = 'Time of birth is missing. If you are unsure of yur time of birth, please select \'Unknown\'';
+				break;
+				case -26:
+					$message = 'Time of birth is invalid';
+				break;
+				case -27:
+					$message = 'Location is missing';
+				break;
+				case -28:
+					$message = 'Location is invalid';
+				break;
+				case -29:
+					$message = 'Current location is invalid';
+				break;
+
+				case -31:
+					$message = 'Report ID is invalid or has expired';
+				break;
+				case -32:
+					$message = 'Forecast date is invalid';
+				break;
+
+				case -41:
+					$message = 'Missing API key';
+				break;
+				case -42:
+					$message = 'API key is invalid or has expired';
+				break;
+
+				case -91:
+					$message = 'System error';
+				break;
+			}
+		}
+
+		return ($message != '') ? $message : 'Unknown Error';
+	}
+
+	/**
 	 * Sets the last error
 	 *
-	 * @param $code
-	 * @param $error
+	 * @param string|int $code
+	 * @param string $error
+	 * @param mixed $data
 	 */
-	private function setError($code, $error){
+	private function setError($code, $error, $data = ''){
 		$this->errors[] = array(
-			'code'	=> $code,
-			'message' => $error
+			'code'		=> $code,
+			'message'	=> $error,
+			'data'		=> $data
 		);
 	}
 
@@ -367,12 +492,14 @@ class AstrologyPlugin extends PluginHandler{
 				$format
 			));
 
-			if($this->checkResponse($response, $format)){
+			if($this->checkResponse($response, $format, 'chart')){
 				// response is okay
 				$response = $this->parseData($response, $format);
 
 				return $this->parseXML($response['body']->ResponseData->XML);
 			}
+		}else{
+			$this->setError(null, 'No data defined');
 		}
 
 		return null;
@@ -398,7 +525,7 @@ class AstrologyPlugin extends PluginHandler{
 
 		$response = $this->makeRequest($this->buildRequest($this->locationURI, $vars, $format));
 
-		if($this->checkResponse($response, $format)){
+		if($this->checkResponse($response, $format, 'location')){
 			// response is okay
 			$response = $this->parseData($response, $format);
 			return $response['body']->ResponseData[0];

@@ -11,10 +11,14 @@
 		 * Enable/disable the state drop-down,
 		 * depending on the selected country
 		 */
-		$('#personBirthCountry')
+		chartForm.find('select.country')
 				.on('change', function(){
-					var val = $(this).val(),																	// the selected country code
-						$stateSelect = $('#personBirthState'),													// the state select field
+					var $countrySelect = $(this),																// the select element
+						type = $countrySelect.prop('name').match(/^(.*?)Country/)[1] || '',						// the select type (birth/current etc)
+						val = $countrySelect.val(),																// the selected country code
+						$stateSelect = $countrySelect															// the state select field
+													.parents('fieldset:first')
+													.find('select.state[name^="' + type + 'State"]'),
 						selectOpts = $stateSelect.data('countryOptions') ||										// the original select options
 										$stateSelect.data('countryOptions', $stateSelect.children('optgroup'))
 													.data('countryOptions'),

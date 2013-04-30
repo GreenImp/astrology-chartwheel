@@ -9,54 +9,60 @@
 global $astrologyPlugin;
 $formValidation = $astrologyPlugin->library('FormValidation');
 
+$locationOptions = array();
 if(isset($_POST['chartSubmit'])){
 	// form has been submitted
 
 	$rules = array(
 		array(
-			'field'	=> 'fName',
+			'field'	=> 'fName[]',
 			'label'	=> 'First name',
 			'rules'	=> 'trim|required'
 		),
 		array(
-			'field'	=> 'lName',
+			'field'	=> 'lName[]',
 			'label'	=> 'Last Name',
 			'rules'	=> 'trim'
 		),
 		array(
-			'field'	=> 'sex',
+			'field'	=> 'sex[]',
 			'label'	=> 'Sex',
 			'rules'	=> 'trim|required|callback_is_gender'
 		),
 		array(
-			'field'	=> 'dob',
+			'field'	=> 'dob[]',
 			'label'	=> 'Date of Birth',
 			'rules'	=> 'trim|required|is_date[DD/MM/YYYY]'
 		),
 		array(
-			'field'	=> 'tob',
+			'field'	=> 'tob[]',
 			'label'	=> 'Time of Birth',
 			'rules'	=> 'trim|is_time_24'
 		),
 		array(
-			'field'	=> 'tobUnknown',
+			'field'	=> 'tobUnknown[]',
 			'label'	=> 'Time of Birth Unknown',
 			'rules'	=> ''
 		),
 		array(
-			'field'	=> 'birthTown',
+			'field'	=> 'birthTown[]',
 			'label'	=> 'Birth Town',
 			'rules'	=> 'trim|required'
 		),
 		array(
-			'field'	=> 'birthCountry',
+			'field'	=> 'birthCountry[]',
 			'label'	=> 'Birth Country',
 			'rules'	=> 'trim|required'
 		),
 		array(
-			'field'	=> 'birthState',
+			'field'	=> 'birthState[]',
 			'label'	=> 'Birth State',
 			'rules'	=> 'trim'
+		),
+		array(
+			'field'	=> 'birthLocation[]',
+			'label'	=> 'Birth Location',
+			'rules'	=> 'trim|is_natural_no_zero'
 		)
 	);
 
@@ -64,35 +70,54 @@ if(isset($_POST['chartSubmit'])){
 	if(FormValidation::validate($rules)){
 		// form submitted successfully
 
-		list($d, $m, $y) = explode('/', $_POST['dob']);
-		$dob = $y . '-' . $m . '-' . $d;
+		$error = false;
+		// loop through each person and store them
+		$people = array();
+		foreach($_POST['fName'] as $n => $name){
+			list($d, $m, $y) = explode('/', $_POST['dob'][$n]);
+			$dob = $y . '-' . $m . '-' . $d;
 
-		if(!is_null($location = $astrologyPlugin->getLocationCode($_POST['birthTown'], $_POST['birthCountry'], $_POST['birthState']))){
-			// set the entered birth town to the full valid version
-			$chartData = $astrologyPlugin->getChart(array(
-				array(
-					'firstName'		=> $_POST['fName'],
-					'lastName'		=> isset($_POST['lName']) ? $_POST['lName'] : '',
-					'sex'			=> $_POST['sex'],
+			// get the location - usually, we'll generate this from the getLocationCode function,
+			// but sometimes, if the user has selected from a choice of locations, the actual
+			// location code will be supplied as birthLocation
+			$location = (isset($_POST['birthLocation'][$n]) && !empty($_POST['birthLocation'][$n])) ?
+							$_POST['birthLocation'][$n]
+						:
+							$astrologyPlugin->getLocationCode($_POST['birthTown'][$n], $_POST['birthCountry'][$n], $_POST['birthState'][$n]);
+
+			if(is_null($location)){
+				// error getting location
+				$error = true;
+				// loop through each error and add it to the list
+				foreach($astrologyPlugin->getErrors() as $error){
+					Message::add('error', $error['message']);
+
+					if($error['code'] == 2){
+						// the error is actually that the selected country has multiple results to chose from
+						$locationOptions[$n] = $error['data'];
+					}
+				}
+			}else{
+				$people[] = array(
+					'firstName'		=> $name,
+					'lastName'		=> isset($_POST['lName'][$n]) ? $_POST['lName'][$n] : '',
+					'sex'			=> $_POST['sex'][$n],
 					'dob'			=> $dob,
-					'tob'			=> isset($_POST['tob']) ? $_POST['tob'] : '',
-					'tobUnknown'	=> isset($_POST['tobUnknown']) ? 1 : 0,
-					'locationCode'	=> $location->LocationCode
-				)
-			));
+					'tob'			=> isset($_POST['tob'][$n]) ? $_POST['tob'][$n] : '',
+					'tobUnknown'	=> isset($_POST['tobUnknown'][$n]) ? 1 : 0,
+					'locationCode'	=> is_object($location) ? $location->LocationCode : $location
+				);
+			}
+		}
 
-			if(is_null($chartData)){
+		if(!$error){
+			// set the entered birth town to the full valid version
+			if(is_null($chartData = $astrologyPlugin->getChart($people))){
 				// error getting data
 				// loop through each error and add it to the list
 				foreach($astrologyPlugin->getErrors() as $error){
 					Message::add('error', $error['message']);
 				}
-			}
-		}else{
-			// error getting location
-			// loop through each error and add it to the list
-			foreach($astrologyPlugin->getErrors() as $error){
-				Message::add('error', $error['message']);
 			}
 		}
 	}elseif(count($errors = FormValidation::getErrors()) > 0){
@@ -206,36 +231,36 @@ if(isset($chartData) && !is_null($chartData)){
 		<dl>
 			<dt><label for="personFName">First Name</label></dt>
 			<dd>
-				<input type="text" name="fName" value="<?php echo $formValidation->getValue('fName'); ?>" placeholder="First Name" required id="personFName">
+				<input type="text" name="fName[]" value="<?php echo $formValidation->getValue('fName[]'); ?>" placeholder="First Name" required id="personFName">
 			</dd>
 
 			<dt><label for="personLName">Last Name</label></dt>
 			<dd>
-				<input type="text" name="lName" value="<?php echo $formValidation->getValue('lName'); ?>" placeholder="Last Name" id="personLName">
+				<input type="text" name="lName[]" value="<?php echo $formValidation->getValue('lName[]'); ?>" placeholder="Last Name" id="personLName">
 			</dd>
 
 			<dt><label for="personSex">Sex</label></dt>
 			<dd>
-				<select name="sex" required id="personSex">
+				<select name="sex[]" required id="personSex">
 					<option value="">Select...</option>
-					<option value="M" <?php echo $formValidation->getSelect('sex', 'M'); ?>>Male</option>
-					<option value="F" <?php echo $formValidation->getSelect('sex', 'F'); ?>>Female</option>
+					<option value="M" <?php echo $formValidation->getSelect('sex[0]', 'M'); ?>>Male</option>
+					<option value="F" <?php echo $formValidation->getSelect('sex[0]', 'F'); ?>>Female</option>
 				</select>
 			</dd>
 
 			<dt><label for="personDOB">Date of Birth</label></dt>
 			<dd>
-				<input type="date" name="dob" value="<?php echo $formValidation->getValue('dob'); ?>" placeholder="dd/mm/yyyy" required id="personDOB">
+				<input type="date" name="dob[]" value="<?php echo $formValidation->getValue('dob[]'); ?>" placeholder="dd/mm/yyyy" required id="personDOB">
 			</dd>
 
 			<dt><label for="personTOB">Time of Birth</label></dt>
 			<dd>
-				<input type="time" name="tob" value="<?php echo $formValidation->getValue('tob'); ?>" placeholder="hh:mm" id="personTOB">
+				<input type="time" name="tob[]" value="<?php echo $formValidation->getValue('tob[]'); ?>" placeholder="hh:mm" id="personTOB">
 			</dd>
 			<dd>
 				<label for="personTOBUnknown">
 					Unknown
-					<input type="checkbox" name="tobUnknown" value="1" <?php echo $formValidation->getCheckbox('tobUnknown', '1'); ?> id="personTOBUnknown">
+					<input type="checkbox" name="tobUnknown[]" value="1" <?php echo $formValidation->getCheckbox('tobUnknown[0]', '1'); ?> id="personTOBUnknown">
 				</label>
 			</dd>
 		</dl>
@@ -246,26 +271,35 @@ if(isset($chartData) && !is_null($chartData)){
 
 		<dt><label for="personBirthTown">Town/City</label></dt>
 		<dd>
-			<input type="text" name="birthTown" value="<?php echo $formValidation->getValue('birthTown'); ?>" placeholder="Town/City" required id="personBirthTown">
+			<?php $hasLocationOptions = isset($locationOptions[0]) && is_array($locationOptions[0]) && (count($locationOptions[0]) > 0); ?>
+			<input type="<?php echo $hasLocationOptions ? 'hidden' : 'text'; ?>" name="birthTown[]" value="<?php echo $formValidation->getValue('birthTown[]'); ?>" placeholder="Town/City" required id="personBirthTown">
+
+			<?php if($hasLocationOptions){ ?>
+			<select name="birthLocation[]" multiple size="5">
+				<?php foreach($locationOptions[0] as $option){ ?>
+				<option value="<?php echo $option->LocationCode; ?>"><?php echo $option->NameWithRegion; ?></option>
+				<?php } ?>
+			</select>
+			<?php } ?>
 		</dd>
 
 		<dt><label for="personBirthCountry">Country</label></dt>
 		<dd>
-			<select name="birthCountry" required id="personBirthCountry">
+			<select name="birthCountry[]" required id="personBirthCountry" class="country">
 				<option value="">Select Country...</option>
 
 				<?php
 				foreach($astrologyPlugin->getCountries() as $country){
 					$code = $formValidation->prep_for_form($country->code)
 				?>
-				<option value="<?php echo $code; ?>" <?php echo $formValidation->getSelect('birthCountry', $code); ?>><?php echo $formValidation->prep_for_form($country->name); ?></option>
+				<option value="<?php echo $code; ?>" <?php echo $formValidation->getSelect('birthCountry[0]', $code); ?>><?php echo $formValidation->prep_for_form($country->name); ?></option>
 				<?php } ?>
 			</select>
 		</dd>
 
 		<dt><label for="personBirthState">State</label></dt>
 		<dd>
-			<select name="birthState" id="personBirthState">
+			<select name="birthState[]" id="personBirthState" class="state">
 				<option value="">Select State...</option>
 
 				<?php
@@ -285,7 +319,7 @@ if(isset($chartData) && !is_null($chartData)){
 				<?php
 						}
 				?>
-					<option value="<?php echo $code; ?>" <?php echo $formValidation->getSelect('birthState', $code); ?>><?php echo $formValidation->prep_for_form($state->name); ?></option>
+					<option value="<?php echo $code; ?>" <?php echo $formValidation->getSelect('birthState[0]', $code); ?>><?php echo $formValidation->prep_for_form($state->name); ?></option>
 				<?php
 					}
 				?>
