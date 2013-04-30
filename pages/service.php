@@ -197,7 +197,7 @@ if(isset($chartData) && !is_null($chartData)){
 <?php
 }
 ?>
-<form action="<?php echo $currentURL; ?>" method="post" id="chartForm" class="wpcf7-form">
+<form action="<?php echo $currentURL; ?>" method="post" id="chartForm">
 	<h2>Get Your <span>Astrology Chart</span></h2>
 
 	<fieldset>
@@ -297,5 +297,5 @@ if(isset($chartData) && !is_null($chartData)){
 		</dd>
 	</fieldset>
 
-	<input type="submit" name="chartSubmit" value="Submit">
+	<input type="submit" name="chartSubmit" value="Submit" class="submit">
 </form>
