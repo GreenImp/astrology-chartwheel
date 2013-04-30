@@ -232,7 +232,7 @@ class AstrologyPlugin extends PluginHandler{
 				return true;
 			}else{
 				// an error has occurred
-				$this->setError($status->Code, $status->Message);
+				$this->setError($status->Code, $status->Message, $response['body']->ResponseData);
 				return false;
 			}
 		}else{
@@ -272,13 +272,15 @@ class AstrologyPlugin extends PluginHandler{
 	/**
 	 * Sets the last error
 	 *
-	 * @param $code
-	 * @param $error
+	 * @param string|int $code
+	 * @param string $error
+	 * @param mixed $data
 	 */
-	private function setError($code, $error){
+	private function setError($code, $error, $data = ''){
 		$this->errors[] = array(
-			'code'	=> $code,
-			'message' => $error
+			'code'		=> $code,
+			'message'	=> $error,
+			'data'		=> $data
 		);
 	}
 
@@ -373,6 +375,8 @@ class AstrologyPlugin extends PluginHandler{
 
 				return $this->parseXML($response['body']->ResponseData->XML);
 			}
+		}else{
+			$this->setError(null, 'No data defined');
 		}
 
 		return null;
