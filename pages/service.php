@@ -112,7 +112,7 @@ if(isset($chartData) && !is_null($chartData)){
 	$planets = $chartData->planet_data;
 ?>
 <div id="chartResults">
-	<h2>Your results</h2>
+	<h2>Your <span>results</span></h2>
 
 	<?php if(isset($chartData->images[0]->image->data) && !empty($chartData->images[0]->image->data)){ ?>
 	<img src="data:image/png;base64, <?php echo $chartData->images[0]->image->data; ?>" alt="Astrology Chart results">
@@ -197,8 +197,8 @@ if(isset($chartData) && !is_null($chartData)){
 <?php
 }
 ?>
-<form action="<?php echo $currentURL; ?>" method="post" id="chartForm">
-	<h2>Get Your Astrology Chart</h2>
+<form action="<?php echo $currentURL; ?>" method="post" id="chartForm" class="wpcf7-form">
+	<h2>Get Your <span>Astrology Chart</span></h2>
 
 	<fieldset>
 		<legend>Personal details</legend>
