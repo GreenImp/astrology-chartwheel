@@ -40,8 +40,8 @@ class AstrologyPlugin extends PluginHandler{
 		// run the parent's install function
 		parent::install();
 
-		add_option($this->varName . '_api-key', 'e7bc1e12-bba8-4274-9b0a-ea4bef4179d0');
-		add_option($this->varName . '_report-code', 'NEW-CHARTWHEEL');
+		add_option($this->varName . '_api-key', '');
+		add_option($this->varName . '_report-code', '');
 		add_option($this->varName . '_chart-size', 1140);
 
 		global $wpdb;
