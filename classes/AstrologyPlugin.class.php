@@ -40,9 +40,11 @@ class AstrologyPlugin extends PluginHandler{
 		// run the parent's install function
 		parent::install();
 
-		add_option($this->varName . '_api-key', '');
-		add_option($this->varName . '_report-code', '');
-		add_option($this->varName . '_chart-size', 1140);
+		if(false === $this->apiKey){
+			add_option($this->varName . '_api-key', '');
+			add_option($this->varName . '_report-code', '');
+			add_option($this->varName . '_chart-size', 1140);
+		}
 
 		global $wpdb;
 
@@ -136,6 +138,10 @@ class AstrologyPlugin extends PluginHandler{
 		parent::uninstall();
 
 		if(!$this->debug){
+			delete_option($this->varName . '_api-key');
+			delete_option($this->varName . '_report-code');
+			delete_option($this->varName . '_chart-size');
+
 			global $wpdb;
 
 			// drop the dbs
