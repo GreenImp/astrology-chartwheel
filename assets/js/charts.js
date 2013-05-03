@@ -66,5 +66,16 @@
 		chartForm.find('input[type=date]').datepicker({
 			dateFormat:'dd/mm/yy'
 		});
+
+		if($('#chartResults').length){
+			// we are showing chart results - let's add a show/hide button to the form
+			var showButton = $('<button class="showBtn">Try again</button>');
+
+			chartForm.hide().before(showButton);
+			showButton.on('click', function(){
+				showButton.hide();
+				chartForm.stop(true, true).slideDown(600);
+			});
+		}
 	});
 })(jQuery, window, document);
