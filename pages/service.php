@@ -151,67 +151,70 @@ if(isset($chartData) && !is_null($chartData)){
 				$hasBirthTime = preg_match('/[0-9]{1,2}\:[0-9]{1,2}/', $person->birth_time);
 			?>
 			<li class="person">
-				<h3>Your Details</h3>
+				<div class="block">
+					<h3>Your Details</h3>
 
-				<dl class="details">
-					<dt class="name"><strong>Name</strong></dt>
-					<dd class="name"><?php echo $person->first_name . ' ' . $person->last_name; ?></dd>
+					<dl class="details">
+						<dt class="name"><strong>Name</strong></dt>
+						<dd class="name"><?php echo $person->first_name . ' ' . $person->last_name; ?></dd>
 
-					<dt class="born"><strong>Born</strong></dt>
-					<dd class="bornDate">
-						<?php echo date('l jS F Y' . ($hasBirthTime ? ' h:i A' : ''), strtotime($person->birth_date . ($hasBirthTime ? ' ' . $person->birth_time : ''))); ?>
-					</dd>
-					<dd class="bornLocation">
-						<?php echo $person->birth_location; ?>
-					</dd>
+						<dt class="born"><strong>Born</strong></dt>
+						<dd class="bornDate">
+							<?php echo date('l jS F Y' . ($hasBirthTime ? ' h:i A' : ''), strtotime($person->birth_date . ($hasBirthTime ? ' ' . $person->birth_time : ''))); ?>
+						</dd>
+						<dd class="bornLocation">
+							<?php echo $person->birth_location; ?>
+						</dd>
 
-					<dt class="bornLat"><strong>Birth Latitude</strong></dt>
-					<dd class="bornLat">
-						<?php echo $person->birth_lat; ?>
-					</dd>
+						<dt class="bornLat"><strong>Birth Latitude</strong></dt>
+						<dd class="bornLat">
+							<?php echo $person->birth_lat; ?>
+						</dd>
 
-					<dt class="bornLon"><strong>Birth Longitude</strong></dt>
-					<dd class="bornLon">
-						<?php echo $person->birth_long; ?>
-					</dd>
-				</dl>
+						<dt class="bornLon"><strong>Birth Longitude</strong></dt>
+						<dd class="bornLon">
+							<?php echo $person->birth_long; ?>
+						</dd>
+					</dl>
+				</div>
 
+				<div class="block">
+					<h3>Your Planets</h3>
 
-				<h3>Your Planets</h3>
+					<table class="planets">
+						<thead>
+							<tr>
+								<th class="planet">Planet</th>
+								<th class="glyph">Glyph</th>
+								<th class="sign">Sign</th>
+								<th class="position">Position</th>
+								<th class="house">House</th>
+							</tr>
+						</thead>
 
-				<table class="planets">
-					<thead>
-						<tr>
-							<th>Planets</th>
-							<th>Glyph</th>
-							<th>Sign</th>
-							<th>Position</th>
-							<th>House</th>
-						</tr>
-					</thead>
-
-					<tbody>
-						<?php
-						foreach($chartData->planet_data[0] as $planet){
-							if((int) $planet->person == (int) $person->person_number){
-						?>
-						<tr>
-							<td><?php echo $planet['name']; ?></td>
-							<td>
-								<img src="<?php echo $astrologyPlugin->uri . 'assets/images/chart/' . $planet['planet'] . '.png'; ?>">
-							</td>
-							<td>
-								<img src="<?php echo $astrologyPlugin->uri . 'assets/images/chart/SIGN-' . $planet->sign . '.png'; ?>">
-							</td>
-							<td><?php echo $planet->position; ?></td>
-							<td><?php echo $planet->house; ?></td>
-						</tr>
-						<?php
+						<tbody>
+							<?php
+							foreach($chartData->planet_data[0] as $planet){
+								if((int) $planet->person == (int) $person->person_number){
+							?>
+							<tr>
+								<td class="planet"><?php echo $planet['name']; ?></td>
+								<td class="glyph">
+									<img src="<?php echo $astrologyPlugin->uri . 'assets/images/chart/' . $planet['planet'] . '.png'; ?>">
+								</td>
+								<td class="sign">
+									<img src="<?php echo $astrologyPlugin->uri . 'assets/images/chart/SIGN-' . $planet->sign . '.png'; ?>">
+								</td>
+								<td class="position"><?php echo $planet->position; ?></td>
+								<td class="house"><?php echo $planet->house; ?></td>
+							</tr>
+							<?php
+								}
 							}
-						}
-						?>
-					</tbody>
-				</table>
+							?>
+						</tbody>
+					</table>
+				</div>
 			</li>
 			<?php
 			}
