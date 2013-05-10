@@ -16,7 +16,7 @@ if(!class_exists('GreenMessage')){
 				session_start();
 			}
 
-			add_action('admin_notices', 'GreenMessage::show');
+			add_action('admin_notices', array(__CLASS__, 'show'));
 		}
 
 		/**
