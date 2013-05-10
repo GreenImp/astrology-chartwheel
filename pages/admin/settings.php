@@ -30,7 +30,7 @@ if(isset($_POST['submit'])){
 	);
 
 	// validate the form
-	if(FormValidation::validate($rules)){
+	if(GreenFormValidation::validate($rules)){
 		// form submitted successfully - update the options
 
 		update_option($astrologyPlugin->varName . '_api-key', $_POST['apiKey']);
@@ -41,19 +41,19 @@ if(isset($_POST['submit'])){
 		}
 
 		// update successful
-		Message::add('updated', 'The settings have been updated');
-	}elseif(count($errors = FormValidation::getErrors()) > 0){
+		GreenMessage::add('updated', 'The settings have been updated');
+	}elseif(count($errors = GreenFormValidation::getErrors()) > 0){
 		// errors exist - output them to the user
 		// loop through each error and add it to the list
 		foreach($errors as $error){
-			Message::add('error', $error);
+			GreenMessage::add('error', $error);
 		}
 	}
 }
 
 
 // output any messages
-Message::show();
+GreenMessage::show();
 ?>
 <div id="<?php echo $astrologyPlugin->varName; ?>" class="wrap">
 	<div id="icon-options-general" class="icon32"></div>

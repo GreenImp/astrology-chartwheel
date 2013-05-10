@@ -67,7 +67,7 @@ if(isset($_POST['chartSubmit'])){
 	);
 
 	// validate the form
-	if(FormValidation::validate($rules)){
+	if(GreenFormValidation::validate($rules)){
 		// form submitted successfully
 
 		$error = false;
@@ -90,7 +90,7 @@ if(isset($_POST['chartSubmit'])){
 				$error = true;
 				// loop through each error and add it to the list
 				foreach($astrologyPlugin->getErrors() as $error){
-					Message::add('error', $error['message']);
+					GreenMessage::add('error', $error['message']);
 
 					if($error['code'] == 2){
 						// the error is actually that the selected country has multiple results to chose from
@@ -116,21 +116,21 @@ if(isset($_POST['chartSubmit'])){
 				// error getting data
 				// loop through each error and add it to the list
 				foreach($astrologyPlugin->getErrors() as $error){
-					Message::add('error', $error['message']);
+					GreenMessage::add('error', $error['message']);
 				}
 			}
 		}
-	}elseif(count($errors = FormValidation::getErrors()) > 0){
+	}elseif(count($errors = GreenFormValidation::getErrors()) > 0){
 		// errors exist - output them to the user
 		// loop through each error and add it to the list
 		foreach($errors as $error){
-			Message::add('error', $error);
+			GreenMessage::add('error', $error);
 		}
 	}
 }
 
 // output any messages
-Message::show();
+GreenMessage::show();
 
 if(isset($chartData) && !is_null($chartData)){
 	$people = $chartData->people;

@@ -5,8 +5,8 @@
  * Author: GreenImp Web
  * Date Created: 26/03/13 21:49
  */
-if(!class_exists('Page')){
-	class Page{
+if(!class_exists('GreenPage')){
+	class GreenPage{
 		private $rewriteRules = array();
 		private $directory = '';
 		private $varName = '';

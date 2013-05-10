@@ -7,9 +7,9 @@
  */
 if(!class_exists('PluginHandler')){
 	// load some extra files, if they exist
-	include_once(dirname(__FILE__) . '/FormValidation.class.php');
-	include_once(dirname(__FILE__) . '/Message.class.php');
-	include_once(dirname(__FILE__) . '/Page.class.php');
+	include_once(dirname(__FILE__) . '/GreenFormValidation.class.php');
+	include_once(dirname(__FILE__) . '/GreenMessage.class.php');
+	include_once(dirname(__FILE__) . '/GreenPage.class.php');
 
 	class PluginHandler{
 		public $version = 0.1;			// version number
@@ -52,14 +52,14 @@ if(!class_exists('PluginHandler')){
 
 
 			// check for any plugin libraries
-			if(class_exists('FormValidation')){
-				$this->lib['FormValidation'] = FormValidation::getInstance();
+			if(class_exists('GreenFormValidation')){
+				$this->lib['FormValidation'] = GreenFormValidation::getInstance();
 			}
-			if(class_exists('Message')){
-				$this->lib['Message'] = new Message();
+			if(class_exists('GreenMessage')){
+				$this->lib['Message'] = new GreenMessage();
 			}
-			if(class_exists('Page')){
-				$this->lib['Page'] = new Page($this->directory . 'pages/', $this->varName, $this->debug);
+			if(class_exists('GreenPage')){
+				$this->lib['Page'] = new GreenPage($this->directory . 'pages/', $this->varName, $this->debug);
 			}
 		}
 

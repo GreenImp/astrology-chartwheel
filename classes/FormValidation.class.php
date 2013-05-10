@@ -9,14 +9,14 @@
 if(function_exists('get_instance') && is_a(get_instance(), 'CI_Controller')){
 	// we are using codeigniter - wtf are you using this form validation class for if you have CI?!!
 	$message = '';
-	$message .= '<p>The FormValidation class is meant to mimic the CI form validation for non-codeigniter projects (such as WordPress) and is <strong>not meant to be used within codeigniter projects</strong>, as it provides far <strong>less</strong> functionality than codeigniter\'s own form validation.</p>';
+	$message .= '<p>The GreenFormValidation class is meant to mimic the CI form validation for non-codeigniter projects (such as WordPress) and is <strong>not meant to be used within codeigniter projects</strong>, as it provides far <strong>less</strong> functionality than codeigniter\'s own form validation.</p>';
 	$message .= '<p>Please use codeigniter\'s form validation, instead of this custom validation class.</p>';
 	$message .= '<p>File: ' . __FILE__ . '</p>';
 	die($message);
 }
 
-if(!class_exists('FormValidation')){
-	class FormValidation{
+if(!class_exists('GreenFormValidation')){
+	class GreenFormValidation{
 		private static $instance = null;
 		private static $db = null;
 
@@ -70,7 +70,7 @@ if(!class_exists('FormValidation')){
 
 		private function &getDB(){
 			if(is_null(self::$db)){
-				self::$db = new FormValidationDB();
+				self::$db = new GreenFormValidationDB();
 			}
 
 			return self::$db;
@@ -78,7 +78,7 @@ if(!class_exists('FormValidation')){
 
 		public static function getInstance(){
 			if(is_null(self::$instance)){
-				self::$instance = new FormValidation();
+				self::$instance = new GreenFormValidation();
 			}
 
 			return self::$instance;
@@ -201,9 +201,9 @@ if(!class_exists('FormValidation')){
 										// the user defined callback exists
 										$result = call_user_func_array($fieldRule, $ruleParams);
 									}
-								}elseif(method_exists('FormValidation', $fieldRule)){
+								}elseif(method_exists('GreenFormValidation', $fieldRule)){
 									// a local function exists - use it
-									$result = call_user_func_array(array('FormValidation', $fieldRule), $ruleParams);
+									$result = call_user_func_array(array('GreenFormValidation', $fieldRule), $ruleParams);
 								}elseif(function_exists($fieldRule)){
 									// a PHP function exists - use it
 									$result = call_user_func_array($fieldRule, $ruleParams);
@@ -881,7 +881,7 @@ if(!class_exists('FormValidation')){
 	}
 
 
-	class FormValidationDB{
+	class GreenFormValidationDB{
 		private $db = null;
 		private $functions = array();
 

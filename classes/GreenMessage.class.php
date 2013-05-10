@@ -3,8 +3,8 @@
  * Author: GreenImp
  * Date Created: 05/09/2012 12:38
  */
-if(!class_exists('Message')){
-	class Message{
+if(!class_exists('GreenMessage')){
+	class GreenMessage{
 		private static $sessionName = 'message_class_messages';
 
 		public function __construct(){
@@ -16,7 +16,7 @@ if(!class_exists('Message')){
 				session_start();
 			}
 
-			add_action('admin_notices', 'Message::show');
+			add_action('admin_notices', 'GreenMessage::show');
 		}
 
 		/**

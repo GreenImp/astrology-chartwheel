@@ -2,12 +2,6 @@
 if(!function_exists('add_action')){ exit; }
 
 /**
- * Copyright GreenImp Web - greenimp.co.uk
- * 
- * Author: GreenImp Web
- * Date Created: 19/04/13 10:26
- */
-/**
  * @package astrology-chartwheel
  * @version 0.1
  */
