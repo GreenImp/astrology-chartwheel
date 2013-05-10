@@ -312,11 +312,11 @@ if(isset($chartData) && !is_null($chartData)){
 						$code = $formValidation->prep_for_form($state->code);
 
 						if($countryCode != $state->country_code){
-							$countryCode = $state->country_code;
-
 							if($countryCode != ''){
 								echo '</optgroup>';
 							}
+
+							$countryCode = $state->country_code;
 				?>
 				<optgroup label="<?php echo $state->country_code; ?>">
 				<?php
