@@ -10,6 +10,7 @@ global $astrologyPlugin;
 $formValidation = $astrologyPlugin->library('FormValidation');
 
 $locationOptions = array();
+$hasChart = false;
 if(isset($_POST['chartSubmit'])){
 	// form has been submitted
 
@@ -32,7 +33,7 @@ if(isset($_POST['chartSubmit'])){
 		array(
 			'field'	=> 'dob[]',
 			'label'	=> 'Date of Birth',
-			'rules'	=> 'trim|required|is_date[DD/MM/YYYY]'
+			'rules'	=> 'trim|required|is_date[YYYY-MM-DD]'
 		),
 		array(
 			'field'	=> 'tob[]',
@@ -74,7 +75,8 @@ if(isset($_POST['chartSubmit'])){
 		// loop through each person and store them
 		$people = array();
 		foreach($_POST['fName'] as $n => $name){
-			list($d, $m, $y) = explode('/', $_POST['dob'][$n]);
+			//list($d, $m, $y) = explode('/', $_POST['dob'][$n]);
+			list($d, $m, $y) = explode('-', $_POST['dob'][$n]);
 			$dob = $y . '-' . $m . '-' . $d;
 
 			// get the location - usually, we'll generate this from the getLocationCode function,
@@ -118,6 +120,8 @@ if(isset($_POST['chartSubmit'])){
 				foreach($astrologyPlugin->getErrors() as $error){
 					GreenMessage::add('error', $error['message']);
 				}
+			}else{
+				$hasChart = true;
 			}
 		}
 	}elseif(count($errors = GreenFormValidation::getErrors()) > 0){
@@ -132,7 +136,7 @@ if(isset($_POST['chartSubmit'])){
 // output any messages
 GreenMessage::show();
 
-if(isset($chartData) && !is_null($chartData)){
+if($hasChart){
 	$people = $chartData->people;
 	$planets = $chartData->planet_data;
 ?>
@@ -225,7 +229,8 @@ if(isset($chartData) && !is_null($chartData)){
 <?php
 }
 ?>
-<form action="<?php echo $currentURL; ?>" method="post" id="chartForm">
+
+<form action="<?php echo $currentURL; ?>" method="post" id="chartForm" class="<?php echo $hasChart ? 'hasChart' : 'noChart'; ?>">
 	<h2>Get Your <span>Astrology Chart</span></h2>
 
 	<fieldset>
@@ -253,7 +258,7 @@ if(isset($chartData) && !is_null($chartData)){
 
 			<dt><label for="personDOB">Date of Birth</label></dt>
 			<dd>
-				<input type="date" name="dob[]" value="<?php echo $formValidation->getValue('dob[]'); ?>" placeholder="dd/mm/yyyy" required id="personDOB">
+				<input type="date" name="dob[]" value="<?php echo $formValidation->getValue('dob[]'); ?>" placeholder="yyyy-mm-dd" required id="personDOB">
 			</dd>
 
 			<dt><label for="personTOB">Time of Birth</label></dt>
